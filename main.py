@@ -5,6 +5,7 @@ import os
 import random
 import argparse
 import numpy as np
+import attacks
 
 from torch.utils import data
 from datasets import VOCSegmentation, Cityscapes
@@ -18,6 +19,8 @@ from utils.visualizer import Visualizer
 from PIL import Image
 import matplotlib
 import matplotlib.pyplot as plt
+
+from torch.autograd import Variable
 
 
 def get_argparser():
@@ -163,18 +166,62 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
         denorm = utils.Denormalize(mean=[0.485, 0.456, 0.406],
                                    std=[0.229, 0.224, 0.225])
         img_id = 0
-
+    criterion = nn.CrossEntropyLoss(ignore_index=255, reduction='mean')
     with torch.no_grad():
+        torch.set_grad_enabled(True) 
         for i, (images, labels) in tqdm(enumerate(loader)):
-
             images = images.to(device, dtype=torch.float32)
+            
+#            images.requires_grad = True
+         
+#            torch.autograd.grad(images, create_graph=True, allow_unused=True)
             labels = labels.to(device, dtype=torch.long)
+            new_images=Variable(images, requires_grad=True)
+            
+            new_labels=Variable(labels, requires_grad=False)
 
-            outputs = model(images)
-            preds = outputs.detach().max(dim=1)[1].cpu().numpy()
+            outputs = model(new_images)
+#            criterion = utils.FocalLoss(ignore_index=255, size_average=True)
+            
+            
+            
+            loss = criterion(outputs, new_labels)
+#            print(loss)
+              # Zero all existing gradients
+            model.zero_grad()
+  
+              # Calculate gradients of model in backward pass
+            loss.backward()
+  
+              # Collect datagrad
+##            print(images.grad)
+#            sign_data_grad = torch.autograd.grad(loss, new_images,
+#                                       retain_graph=False, create_graph=False)[0]
+            data_grad = new_images.grad.data
+#            sign_data_grad = torch.sign(data_grad)
+  
+              # Call FGSM Attack
+            adversarial_x = attacks.fgsm(images, data_grad, 0.005)
+              
+              
+#            adversarial_x = images + 0.001 * sign_data_grad.sign_()
+#            adversarial_x = new_images + (0.005 * sign_data_grad)
+            
+#            adversarial_y = new_images + 0.000000001 * sign_data_grad
+    # Adding clipping to maintain [0,1] range
+#            adversarial_x = torch.clamp(adversarial_x, 0, 1)
+#            adversarial_y = torch.clamp(adversarial_y, 0, 1)
+#            adversarial_x = sign_data_grad
+  
+              # Re-classify the perturbed image
+            new_output = model(adversarial_x)
+            
+            
+            preds = new_output.detach().max(dim=1)[1].cpu().numpy()
             targets = labels.cpu().numpy()
 
             metrics.update(targets, preds)
+            
             if ret_samples_ids is not None and i in ret_samples_ids:  # get vis samples
                 ret_samples.append(
                     (images[0].detach().cpu().numpy(), targets[0], preds[0]))
@@ -184,12 +231,22 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
                     image = images[i].detach().cpu().numpy()
                     target = targets[i]
                     pred = preds[i]
+                    adversarial_img = adversarial_x[i].detach().cpu().numpy()
+                    
+#                    adversarial_img_y =  adversarial_y[i].detach().cpu().numpy()
 
                     image = (denorm(image) * 255).transpose(1, 2, 0).astype(np.uint8)
+                    adversarial_img = (denorm(adversarial_img) * 255).transpose(1, 2, 0).astype(np.uint8)
+                    
+#                    adversarial_img_y = (denorm(adversarial_img_y) * 255).transpose(1, 2, 0).astype(np.uint8)
+                    
                     target = loader.dataset.decode_target(target).astype(np.uint8)
                     pred = loader.dataset.decode_target(pred).astype(np.uint8)
 
                     Image.fromarray(image).save('results/%d_image.png' % img_id)
+                    Image.fromarray(adversarial_img).save('results/%d_atimage.png' % img_id)
+#                    Image.fromarray(adversarial_img_y).save('results/%d_atyimage.png' % img_id)
+
                     Image.fromarray(target).save('results/%d_target.png' % img_id)
                     Image.fromarray(pred).save('results/%d_pred.png' % img_id)
 
@@ -320,20 +377,57 @@ def main():
         return
 
     interval_loss = 0
+    # https://github.com/ndb796/Pytorch-Adversarial-Training-CIFAR/blob/master/pgd_adversarial_training.py
     while True:  # cur_itrs < opts.total_itrs:
         # =====  Train  =====
         model.train()
         cur_epochs += 1
+        #s
+        torch.set_grad_enabled(True) 
+        #e
         for (images, labels) in train_loader:
             cur_itrs += 1
 
             images = images.to(device, dtype=torch.float32)
             labels = labels.to(device, dtype=torch.long)
-
+            
+            # s
+            new_images=Variable(images, requires_grad=True)
+            new_labels=Variable(labels, requires_grad=False)
+            # e
+            
             optimizer.zero_grad()
-            outputs = model(images)
-            loss = criterion(outputs, labels)
+#            outputs = model(new_images)
+            
+            # s
+            new_images_d = new_images.detach()
+            new_images_d.requires_grad_()
+            with torch.enable_grad():
+                outputs_a = model(new_images_d)
+                loss_a = criterion(outputs_a, labels)
+            data_grad = torch.autograd.grad(loss_a, [new_images_d])[0]
+            adversarial_x = new_images_d.detach() + 0.005 * torch.sign(data_grad.detach())
+            new_output = model(adversarial_x)
+            # e
+            
+#            loss = criterion(new_output, labels)
+            
+            outputs = model(new_images)
+            
+#            loss_o.backward()
+            
+            # s
+            
+#            data_grad = torch.autograd.grad(loss_o, [new_images])[0]
+#            adversarial_x = attacks.fgsm(images, data_grad, 0.005)
+#            new_output = model(adversarial_x)
+            lamb = 0.5
+            loss = (1-lamb) * criterion(outputs, labels) + lamb * criterion(new_output, labels)
+            
             loss.backward()
+            
+            # e
+            
             optimizer.step()
 
             np_loss = loss.detach().cpu().numpy()

@@ -1,0 +1,48 @@
+test on clean image:
+
+without defense:
+
+Attack:
+
+FGSM:
+eps = 0.005
+
+Overall Acc: 
+Mean Acc: 
+FreqW Acc: 
+Mean IoU: 
+
+test on adversial images:
+
+Overall Acc: 0.734180
+Mean Acc: 0.514216
+FreqW Acc: 0.622829
+Mean IoU: 0.329249
+
+
+
+test on clean images:
+
+AT training with
+
+lamb = 0.5
+loss = (1-lamb) * criterion(outputs, labels) + lamb * criterion(new_output, labels)
+
+Attack:
+
+FGSM:
+eps = 0.005
+
+
+Overall Acc: 0.850562
+Mean Acc: 0.744020
+FreqW Acc: 0.762493
+Mean IoU: 0.533963
+
+test on adversial images:
+
+Overall Acc: 0.859363
+Mean Acc: 0.736862
+FreqW Acc: 0.772218
+Mean IoU: 0.545999
+
