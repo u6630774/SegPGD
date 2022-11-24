@@ -10,7 +10,7 @@ Equipment: 1 p40 GPU and i7 12700k
 
 Metrics:Overall Acc,Mean Acc,FreqW Acc,Mean IoU 
 
-Attack: FGSM with eps to 0.005,plan to PGD,CW attack , DeepFool  and BIM 
+Attack: Pytorch based FGSM with eps to 0.005,plan to use PGD, SegFGSM, SegPGD,CW attack , DeepFool  and BIM 
 
 Defense: AT training with (1-lamb) * CE(a,y) + lamb * CE(x,y) with lamb = 0.5
 
