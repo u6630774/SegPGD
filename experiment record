@@ -1,4 +1,20 @@
-test on clean image:
+Experiment setting up:
+
+Pascal VOC 2012 with augmentation to 10,582 images
+
+Model: DeeplabV3+
+
+Batch size:4
+
+Equipment: 1 p40 GPU and i7 12700k
+
+Metrics:Overall Acc,Mean Acc,FreqW Acc,Mean IoU 
+
+Attack: FGSM with eps to 0.005,plan to PGD,CW attack , DeepFool  and BIM 
+
+Defense: AT training with (1-lamb) * CE(a,y) + lamb * CE(x,y) with lamb = 0.5
+
+test on clean image: 
 
 without defense:
 
