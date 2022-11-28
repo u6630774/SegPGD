@@ -384,19 +384,23 @@ def main():
         # =====  Train  =====
         model.train()
         cur_epochs += 1
-        #s
-        torch.set_grad_enabled(True) 
-        #e
+# =============================================================================
+#         #s
+#         torch.set_grad_enabled(True) 
+#         #e
+# =============================================================================
         for (images, labels) in train_loader:
             cur_itrs += 1
 
             images = images.to(device, dtype=torch.float32)
             labels = labels.to(device, dtype=torch.long)
             
-            # s
-            new_images=Variable(images, requires_grad=True)
-            new_labels=Variable(labels, requires_grad=False)
-            # e
+# =============================================================================
+#             # s
+#             new_images=Variable(images, requires_grad=True)
+#             new_labels=Variable(labels, requires_grad=False)
+#             # e
+# =============================================================================
             
             optimizer.zero_grad()
 #            outputs = model(new_images)
@@ -420,7 +424,7 @@ def main():
             
 #            loss = criterion(new_output, labels)
             
-            outputs = model(new_images)
+            outputs = model(images)
             
 #            loss_o.backward()
             
@@ -437,7 +441,7 @@ def main():
 # =============================================================================
             
             
-            loss =  criterion(outputs, new_labels)
+            loss =  criterion(outputs, labels)
             loss.backward()
             
             # e
