@@ -166,7 +166,9 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
         denorm = utils.Denormalize(mean=[0.485, 0.456, 0.406],
                                    std=[0.229, 0.224, 0.225])
         img_id = 0
-    criterion = nn.CrossEntropyLoss(ignore_index=255, reduction='mean')
+# =============================================================================
+#     criterion = nn.CrossEntropyLoss(ignore_index=255, reduction='mean')
+# =============================================================================
     with torch.no_grad():
         torch.set_grad_enabled(True) 
         for i, (images, labels) in tqdm(enumerate(loader)):
@@ -178,48 +180,51 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
             labels = labels.to(device, dtype=torch.long)
             new_images=Variable(images, requires_grad=True)
             
-            new_labels=Variable(labels, requires_grad=False)
+#            new_labels=Variable(labels, requires_grad=False)
 
             outputs = model(new_images)
 #            criterion = utils.FocalLoss(ignore_index=255, size_average=True)
             
             
             
-            loss = criterion(outputs, new_labels)
-#            print(loss)
-              # Zero all existing gradients
-            model.zero_grad()
-  
-              # Calculate gradients of model in backward pass
-            loss.backward()
-  
-              # Collect datagrad
-##            print(images.grad)
-#            sign_data_grad = torch.autograd.grad(loss, new_images,
-#                                       retain_graph=False, create_graph=False)[0]
-#            data_grad = new_images.grad.data
-#            sign_data_grad = torch.sign(data_grad)
-  
-              # Call FGSM Attack
-#            adversarial_x = attacks.fgsm(images, new_images, 0.005)
-            
-            adversarial_x = attacks.pgd(images,new_images,new_labels,0.005,model)
-              
-              
-#            adversarial_x = images + 0.001 * sign_data_grad.sign_()
-#            adversarial_x = new_images + (0.005 * sign_data_grad)
-            
-#            adversarial_y = new_images + 0.000000001 * sign_data_grad
-    # Adding clipping to maintain [0,1] range
-#            adversarial_x = torch.clamp(adversarial_x, 0, 1)
-#            adversarial_y = torch.clamp(adversarial_y, 0, 1)
-#            adversarial_x = sign_data_grad
-  
-              # Re-classify the perturbed image
-            new_output = model(adversarial_x)
-            
-            
-            preds = new_output.detach().max(dim=1)[1].cpu().numpy()
+# =============================================================================
+#             loss = criterion(outputs, new_labels)
+# #            print(loss)
+#               # Zero all existing gradients
+#             model.zero_grad()
+#   
+#               # Calculate gradients of model in backward pass
+#             loss.backward()
+#   
+#               # Collect datagrad
+# ##            print(images.grad)
+# #            sign_data_grad = torch.autograd.grad(loss, new_images,
+# #                                       retain_graph=False, create_graph=False)[0]
+# #            data_grad = new_images.grad.data
+# #            sign_data_grad = torch.sign(data_grad)
+#   
+#               # Call FGSM Attack
+# #            adversarial_x = attacks.fgsm(images, new_images, 0.005)
+#             
+#             adversarial_x = attacks.pgd(images,new_images,new_labels,0.005,model)
+#               
+#               
+# #            adversarial_x = images + 0.001 * sign_data_grad.sign_()
+# #            adversarial_x = new_images + (0.005 * sign_data_grad)
+#             
+# #            adversarial_y = new_images + 0.000000001 * sign_data_grad
+#     # Adding clipping to maintain [0,1] range
+# #            adversarial_x = torch.clamp(adversarial_x, 0, 1)
+# #            adversarial_y = torch.clamp(adversarial_y, 0, 1)
+# #            adversarial_x = sign_data_grad
+#   
+#               # Re-classify the perturbed image
+#             new_output = model(adversarial_x)
+#             
+#             
+#             preds = new_output.detach().max(dim=1)[1].cpu().numpy()
+# =============================================================================
+            preds = outputs.detach().max(dim=1)[1].cpu().numpy()
             targets = labels.cpu().numpy()
 
             metrics.update(targets, preds)
@@ -233,12 +238,16 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
                     image = images[i].detach().cpu().numpy()
                     target = targets[i]
                     pred = preds[i]
-                    adversarial_img = adversarial_x[i].detach().cpu().numpy()
+# =============================================================================
+#                     adversarial_img = adversarial_x[i].detach().cpu().numpy()
+# =============================================================================
                     
 #                    adversarial_img_y =  adversarial_y[i].detach().cpu().numpy()
 
                     image = (denorm(image) * 255).transpose(1, 2, 0).astype(np.uint8)
-                    adversarial_img = (denorm(adversarial_img) * 255).transpose(1, 2, 0).astype(np.uint8)
+# =============================================================================
+#                     adversarial_img = (denorm(adversarial_img) * 255).transpose(1, 2, 0).astype(np.uint8)
+# =============================================================================
                     
 #                    adversarial_img_y = (denorm(adversarial_img_y) * 255).transpose(1, 2, 0).astype(np.uint8)
                     
@@ -246,7 +255,9 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
                     pred = loader.dataset.decode_target(pred).astype(np.uint8)
 
                     Image.fromarray(image).save('results/%d_image.png' % img_id)
-                    Image.fromarray(adversarial_img).save('results/%d_atimage.png' % img_id)
+# =============================================================================
+#                     Image.fromarray(adversarial_img).save('results/%d_atimage.png' % img_id)
+# =============================================================================
 #                    Image.fromarray(adversarial_img_y).save('results/%d_atyimage.png' % img_id)
 
                     Image.fromarray(target).save('results/%d_target.png' % img_id)
