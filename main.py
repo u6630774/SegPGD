@@ -402,14 +402,20 @@ def main():
 #            outputs = model(new_images)
             
             # s
-            new_images_d = new_images.detach()
-            new_images_d.requires_grad_()
-            with torch.enable_grad():
-                outputs_a = model(new_images_d)
-                loss_a = criterion(outputs_a, labels)
-            data_grad = torch.autograd.grad(loss_a, [new_images_d])[0]
-            adversarial_x = new_images_d.detach() + 0.005 * torch.sign(data_grad.detach())
-            new_output = model(adversarial_x)
+            
+# =============================================================================
+#             #
+#             new_images_d = new_images.detach()
+#             new_images_d.requires_grad_()
+#             with torch.enable_grad():
+#                 outputs_a = model(new_images_d)
+#                 loss_a = criterion(outputs_a, labels)
+#             data_grad = torch.autograd.grad(loss_a, [new_images_d])[0]
+#             adversarial_x = new_images_d.detach() + 0.005 * torch.sign(data_grad.detach())
+#             new_output = model(adversarial_x)
+#             #
+# =============================================================================
+            
             # e
             
 #            loss = criterion(new_output, labels)
@@ -423,9 +429,15 @@ def main():
 #            data_grad = torch.autograd.grad(loss_o, [new_images])[0]
 #            adversarial_x = attacks.fgsm(images, data_grad, 0.005)
 #            new_output = model(adversarial_x)
-            lamb = 0.5
-            loss = (1-lamb) * criterion(outputs, labels) + lamb * criterion(new_output, labels)
+# =============================================================================
+#             #
+#             lamb = 0.5
+#             loss = (1-lamb) * criterion(outputs, labels) + lamb * criterion(new_output, labels)
+#             #
+# =============================================================================
             
+            
+            loss =  criterion(outputs, new_labels)
             loss.backward()
             
             # e

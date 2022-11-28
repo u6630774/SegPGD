@@ -49,16 +49,39 @@ Attack:
 FGSM:
 eps = 0.005
 
-
 Overall Acc: 0.850562
 Mean Acc: 0.744020
 FreqW Acc: 0.762493
 Mean IoU: 0.533963
 
-test on adversial images:
+test on adversial images FGSM:
 
 Overall Acc: 0.859363
 Mean Acc: 0.736862
 FreqW Acc: 0.772218
 Mean IoU: 0.545999
+
+
+PGD:
+eps = 0.005
+
+Overall Acc: 
+Mean Acc: 
+FreqW Acc: 
+Mean IoU: 
+
+test on adversial image PGD with AT training with FGSM:
+
+Overall Acc: 0.895965
+Mean Acc: 0.790723
+FreqW Acc: 0.823380
+Mean IoU: 0.633990
+
+SegPGD:
+
+Overall Acc: 
+Mean Acc: 
+FreqW Acc: 
+Mean IoU: 
+
 
