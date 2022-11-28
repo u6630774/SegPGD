@@ -53,6 +53,25 @@ def pgd(image,new_images,new_labels,eps,model):
             adversarial_x = torch.min(torch.max(new_images_d, new_images - eps*1), new_images + eps*1)
     
     return adversarial_x
+
+#def segpgd(image,new_images,new_labels,eps,model):
+#    
+#    criterion = nn.CrossEntropyLoss(ignore_index=255, reduction='mean')
+#    for i in range(10):
+#            new_images_d = new_images.detach()
+#            new_images_d.requires_grad_()
+#            with torch.enable_grad():
+#                logits = model(new_images_d)
+#                
+#                # logits vs new labels
+#                # lambda = (i-1)/20
+#                # 
+#                #loss = lambda* criterion(Pt, new_labels) + (1-lambda) * criterion(Pf, new_labels)
+#            grad = torch.autograd.grad(loss, [new_images_d])[0]
+#            image = image.detach() + eps * torch.sign(grad.detach())
+#            adversarial_x = torch.min(torch.max(new_images_d, new_images - eps*1), new_images + eps*1)
+#    
+#    return adversarial_x
 # 
 
 # =============================================================================
