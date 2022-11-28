@@ -6,7 +6,7 @@ Model: DeeplabV3+
 
 Batch size:4
 
-Equipment: 1 p40 GPU and i7 12700k
+Equipment: 1 M4000 GPU and i7 12700k
 
 Metrics:Overall Acc,Mean Acc,FreqW Acc,Mean IoU 
 
