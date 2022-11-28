@@ -197,11 +197,13 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
 ##            print(images.grad)
 #            sign_data_grad = torch.autograd.grad(loss, new_images,
 #                                       retain_graph=False, create_graph=False)[0]
-            data_grad = new_images.grad.data
+#            data_grad = new_images.grad.data
 #            sign_data_grad = torch.sign(data_grad)
   
               # Call FGSM Attack
-            adversarial_x = attacks.fgsm(images, data_grad, 0.005)
+#            adversarial_x = attacks.fgsm(images, new_images, 0.005)
+            
+            adversarial_x = attacks.pgd(images,new_images,new_labels,0.005,model)
               
               
 #            adversarial_x = images + 0.001 * sign_data_grad.sign_()

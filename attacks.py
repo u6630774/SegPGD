@@ -12,7 +12,7 @@ __credits__ = ['Anurag Arnab', 'Ondrej Miksik', 'Philip Torr']
 __email__ = 'anurag.arnab@gmail.com'
 __license__ = 'MIT'
 
-def fgsm(images,data_grad,eps):
+def fgsm(images,new_images,eps):
     r"""Caffe implementation of the Fast Gradient Sign Method.
     This attack was proposed in
     net: The Caffe network. Must have its weights initialised already
@@ -27,7 +27,8 @@ def fgsm(images,data_grad,eps):
     Returns the adversarial example, as well as just the pertubation
          (adversarial example - original input)
     """
-
+    #
+    data_grad = new_images.grad.data
     # Collect the element-wise sign of the data gradient
     sign_data_grad = torch.sign(data_grad)
     # Create the perturbed image by adjusting each pixel of the input image
@@ -36,7 +37,23 @@ def fgsm(images,data_grad,eps):
 #    adversarial_x = torch.clamp(adversarial_x, 0, 1)
     # Return the perturbed image
     return adversarial_x
- 
+
+
+def pgd(image,new_images,new_labels,eps,model):
+    
+    criterion = nn.CrossEntropyLoss(ignore_index=255, reduction='mean')
+    for i in range(10):
+            new_images_d = new_images.detach()
+            new_images_d.requires_grad_()
+            with torch.enable_grad():
+                logits = model(new_images_d)
+                loss = criterion(logits, new_labels)
+            grad = torch.autograd.grad(loss, [new_images_d])[0]
+            image = image.detach() + eps * torch.sign(grad.detach())
+            adversarial_x = torch.min(torch.max(new_images_d, new_images - eps*1), new_images + eps*1)
+    
+    return adversarial_x
+# 
 
 # =============================================================================
 # def fgsm(net, x, eps):
