@@ -16,17 +16,17 @@ Defense: AT training with (1-lamb) * CE(a,y) + lamb * CE(x,y) with lamb = 0.5
 
 test on clean image: 
 
-without defense:
+Overall Acc: 0.921012
+Mean Acc: 0.839632
+FreqW Acc: 0.862684
+Mean IoU: 0.707404
+
 
 Attack:
 
 FGSM:
-eps = 0.005
 
-Overall Acc: 
-Mean Acc: 
-FreqW Acc: 
-Mean IoU: 
+eps = 0.005
 
 test on adversial images:
 
@@ -36,8 +36,22 @@ FreqW Acc: 0.622829
 Mean IoU: 0.329249
 
 
+eps = 0.010
 
-test on clean images:
+PGD:
+
+test on adversial images:
+
+eps = 0.001
+iteration = 5
+
+Overall Acc: 0.847649
+Mean Acc: 0.728139
+FreqW Acc: 0.760806
+Mean IoU: 0.533684
+
+eps = 0.001
+iteration = 10
 
 AT training with
 

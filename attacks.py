@@ -50,7 +50,7 @@ def pgd(image,new_images,new_labels,eps,model):
                 loss = criterion(logits, new_labels)
             grad = torch.autograd.grad(loss, [new_images_d])[0]
             image = image.detach() + eps * torch.sign(grad.detach())
-            adversarial_x = torch.min(torch.max(new_images_d, new_images - eps*1), new_images + eps*1)
+            adversarial_x = torch.min(torch.max(image, new_images - eps*1), new_images + eps*1)
     
     return adversarial_x
 
