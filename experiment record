@@ -35,8 +35,12 @@ Mean Acc: 0.514216
 FreqW Acc: 0.622829
 Mean IoU: 0.329249
 
-
 eps = 0.010
+
+Overall Acc: 0.637058
+Mean Acc: 0.532479
+FreqW Acc: 0.526321
+Mean IoU: 0.285882
 
 PGD:
 
@@ -53,6 +57,11 @@ Mean IoU: 0.533684
 eps = 0.001
 iteration = 10
 
+Overall Acc: 0.847649
+Mean Acc: 0.728139
+FreqW Acc: 0.760806
+Mean IoU: 0.533684
+
 AT training with
 
 lamb = 0.5
@@ -61,7 +70,7 @@ loss = (1-lamb) * criterion(outputs, labels) + lamb * criterion(new_output, labe
 Attack:
 
 FGSM:
-eps = 0.005
+eps = 0.001
 
 Overall Acc: 0.850562
 Mean Acc: 0.744020
