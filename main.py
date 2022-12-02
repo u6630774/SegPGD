@@ -185,10 +185,10 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
             outputs = model(new_images)
 #            criterion = utils.FocalLoss(ignore_index=255, size_average=True)
             
-            
+            print(new_labels.shape)
             
 # =============================================================================
-            loss = criterion(outputs, new_labels)
+            loss = criterion(outputs, new_labels) 
  #            print(loss)
                # Zero all existing gradients
             model.zero_grad()
@@ -204,9 +204,16 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
  #            sign_data_grad = torch.sign(data_grad)
    
                # Call FGSM Attack
-#            adversarial_x = attacks.fgsm(images, new_images, 0.01)
-             
-            adversarial_x = attacks.pgd(images,new_images,new_labels,0.001,model)
+               
+            # TODO allocate the 1abel 15
+            # TODO set up SegPGD
+            # TODO turn to label not 15
+            # TODO turn to label 0
+            adversarial_x = attacks.fgsm(images, new_images, 0.01)
+
+
+
+#            adversarial_x = attacks.pgd(images,new_images,new_labels,0.001,model)
                
                
  #            adversarial_x = images + 0.001 * sign_data_grad.sign_()
