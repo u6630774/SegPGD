@@ -216,7 +216,7 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
             # TODO set up SegPGD
             # TODO turn to label not 15
             # TODO turn to label 0
-            adversarial_x = attacks.t_fgsm(images, new_images, 0.1)
+            adversarial_x = attacks.t_fgsm(images, new_images, 0.2)
 
 #  new attack -> on the loss of the 
 
