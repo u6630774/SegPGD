@@ -185,28 +185,18 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
             outputs = model(new_images)
 #            criterion = utils.FocalLoss(ignore_index=255, size_average=True)
 
-
             # torch.Size([4, 513, 513])            
-            print(new_labels.shape)
-
             mask = new_labels == 15
 
-            print(mask.shape)
-
             # torch.Size([4, 21, 513, 513])
-            print(outputs.shape)
-            # mask.unsqueeze()
             np_mask = torch.unsqueeze(mask,1)
-            print(np_mask.shape)
-            # print(type(outputs))
 # =============================================================================
             # loss = criterion(outputs*(~np_mask), new_labels*(~mask)) + criterion(outputs*np_mask, new_labels*mask) 
             loss_1 = criterion(outputs*(~ np_mask), new_labels*(~mask))
-            print((outputs * np_mask).shape)
-            loss_2 = criterion(outputs * np_mask, torch.zeros_like(outputs))
+            # how do they can just use new_labels
+            loss_2 = criterion(outputs * np_mask, new_labels*0)
             t_loss = loss_1 + loss_2
             # loss = criterion(outputs, new_labels)
- #            print(loss)
                # Zero all existing gradients
             model.zero_grad()
    
@@ -226,7 +216,7 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
             # TODO set up SegPGD
             # TODO turn to label not 15
             # TODO turn to label 0
-            adversarial_x = attacks.t_fgsm(images, new_images, 0.01)
+            adversarial_x = attacks.t_fgsm(images, new_images, 0.1)
 
 #  new attack -> on the loss of the 
 
