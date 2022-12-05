@@ -187,15 +187,22 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
 
             # torch.Size([4, 513, 513])    
             # according to the         
-            mask = new_labels == 15
-            mask = mask.int()
+            # mask = new_labels == 15
+            # mask = mask.int()
             # TODO how to get mask with the output?
-            # mask = outputs == 15
+            mask = outputs == 15
+            mask = mask.int()
+            # print(outputs.shape)
+            # print(new_labels.shape)
+            # print(mask.shape)
             # print(mask[1,:,:][100])
             # plt.imshow(mask[1,:,:].cpu())
             # plt.show()
             # torch.Size([4, 21, 513, 513])
+            # np_mask = torch.unsqueeze(mask,1)
+            mask = torch.max(mask,1).values
             np_mask = torch.unsqueeze(mask,1)
+            # print(np_mask.shape)
 # =============================================================================
             # loss = criterion(outputs*(~np_mask), new_labels*(~mask)) + criterion(outputs*np_mask, new_labels*mask) 
             # loss_1 = criterion(outputs*(~ np_mask), new_labels*(~mask))
@@ -225,7 +232,7 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
             # TODO turn to label not 15
             # TODO turn to label 0
             # adversarial_x = attacks.t_fgsm(images, new_images, 0.5,np_mask)
-            adversarial_x = attacks.t_fgsm_2(images, new_images, 4/255)
+            adversarial_x = attacks.t_fgsm_2(images, new_images, 8/255)
             # print(adversarial_x[1,1,:,:][2][100])
             # plt.imshow(adversarial_x[1,1,:,:].cpu())
             # plt.show()
