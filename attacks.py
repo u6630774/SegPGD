@@ -100,6 +100,32 @@ def t_fgsm(images,new_images,eps,np_mask):
     # Return the perturbed image
     return adversarial_x
 
+def t_fgsm_2(images,new_images,eps):
+    r"""Caffe implementation of the Fast Gradient Sign Method.
+    This attack was proposed in
+    net: The Caffe network. Must have its weights initialised already
+         Makes the following assumptions
+            - force_backward is set to "true" so that gradients are computed
+            - Has two inputs: "data" and "label"
+            - Has two outputs: "output" and "loss"
+    x: The input data. We will find an adversarial example using this.
+            - Assume that x.shape = net.blobs['data'].shape
+    eps: l_{\infty} norm of the perturbation that will be generated
+
+    Returns the adversarial example, as well as just the pertubation
+         (adversarial example - original input)
+    """
+    #
+    data_grad = new_images.grad.data
+    # Collect the element-wise sign of the data gradient
+    sign_data_grad = torch.sign(data_grad)
+    # Create the perturbed image by adjusting each pixel of the input image
+    adversarial_x = images.detach() - eps * sign_data_grad
+    # Adding clipping to maintain [0,1] range
+#    adversarial_x = torch.clamp(adversarial_x, 0, 1)
+    # Return the perturbed image
+    return adversarial_x
+
 # =============================================================================
 # def fgsm(net, x, eps):
 #     r"""Caffe implementation of the Fast Gradient Sign Method.

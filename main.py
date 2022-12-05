@@ -224,7 +224,8 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
             # TODO set up SegPGD
             # TODO turn to label not 15
             # TODO turn to label 0
-            adversarial_x = attacks.t_fgsm(images, new_images, 0.2,np_mask)
+            # adversarial_x = attacks.t_fgsm(images, new_images, 0.5,np_mask)
+            adversarial_x = attacks.t_fgsm_2(images, new_images, 4/255)
             # print(adversarial_x[1,1,:,:][2][100])
             # plt.imshow(adversarial_x[1,1,:,:].cpu())
             # plt.show()
