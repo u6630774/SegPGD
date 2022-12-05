@@ -185,17 +185,25 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
             outputs = model(new_images)
 #            criterion = utils.FocalLoss(ignore_index=255, size_average=True)
 
-            # torch.Size([4, 513, 513])            
+            # torch.Size([4, 513, 513])    
+            # according to the         
             mask = new_labels == 15
-
+            mask = mask.int()
+            # TODO how to get mask with the output?
+            # mask = outputs == 15
+            # print(mask[1,:,:][100])
+            # plt.imshow(mask[1,:,:].cpu())
+            # plt.show()
             # torch.Size([4, 21, 513, 513])
             np_mask = torch.unsqueeze(mask,1)
 # =============================================================================
             # loss = criterion(outputs*(~np_mask), new_labels*(~mask)) + criterion(outputs*np_mask, new_labels*mask) 
-            loss_1 = criterion(outputs*(~ np_mask), new_labels*(~mask))
+            # loss_1 = criterion(outputs*(~ np_mask), new_labels*(~mask))
+            loss_1 = criterion(outputs*(1 - np_mask), new_labels*(1 - mask))
             # how do they can just use new_labels
             loss_2 = criterion(outputs * np_mask, new_labels*0)
             t_loss = loss_1 + loss_2
+            # print(t_loss)
             # loss = criterion(outputs, new_labels)
                # Zero all existing gradients
             model.zero_grad()
@@ -216,8 +224,18 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
             # TODO set up SegPGD
             # TODO turn to label not 15
             # TODO turn to label 0
-            adversarial_x = attacks.t_fgsm(images, new_images, 0.2)
-
+            adversarial_x = attacks.t_fgsm(images, new_images, 0.2,np_mask)
+            # print(adversarial_x[1,1,:,:][2][100])
+            # plt.imshow(adversarial_x[1,1,:,:].cpu())
+            # plt.show()
+            # adversarial_x = adversarial_x 
+            # print(mask[1,:,:][100])
+            # plt.imshow(mask[1,:,:].cpu())
+            # plt.show()
+            # print(np_mask.shape)
+            # print(np_mask[0,0,:,:][200])
+            # plt.imshow(np_mask[0,0,:,:].cpu())
+            # plt.show()
 #  new attack -> on the loss of the 
 
 
