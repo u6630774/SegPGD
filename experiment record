@@ -124,9 +124,10 @@ good attack on human
 
 with non mask on gridient and attack according to predict mask
 
-Overall Acc: 0.892062
-Mean Acc: 0.738422
-FreqW Acc: 0.820283
-Mean IoU: 0.593750
+Overall Acc: 0.873304
+Mean Acc: 0.705634
+FreqW Acc: 0.794755
+Mean IoU: 0.548053
+
 
 bad attack on human
