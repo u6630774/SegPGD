@@ -35,12 +35,26 @@ Mean Acc: 0.514216
 FreqW Acc: 0.622829
 Mean IoU: 0.329249
 
+Overall Acc: 0.696551
+Mean Acc: 0.584187
+FreqW Acc: 0.587170
+Mean IoU: 0.339195
+human IoU: 0.033816
+
+
 eps = 0.010
 
 Overall Acc: 0.637058
 Mean Acc: 0.532479
 FreqW Acc: 0.526321
 Mean IoU: 0.285882
+
+Overall Acc: 0.637058
+Mean Acc: 0.532479
+FreqW Acc: 0.526321
+Mean IoU: 0.285882
+human IoU: 0.030054
+
 
 PGD:
 
@@ -119,6 +133,13 @@ Overall Acc: 0.866186
 Mean Acc: 0.720904
 FreqW Acc: 0.773258
 Mean IoU: 0.575303
+
+Overall Acc: 0.866186
+Mean Acc: 0.720904
+FreqW Acc: 0.773259
+Mean IoU: 0.575303
+human IoU: 0.016426
+
 
 good attack on human
 

@@ -29,10 +29,12 @@ class StreamSegMetrics(_StreamMetrics):
     def __init__(self, n_classes):
         self.n_classes = n_classes
         self.confusion_matrix = np.zeros((n_classes, n_classes))
+        self.confusion_matrix_2 = np.zeros((n_classes, n_classes))
 
     def update(self, label_trues, label_preds):
         for lt, lp in zip(label_trues, label_preds):
             self.confusion_matrix += self._fast_hist( lt.flatten(), lp.flatten() )
+            self.confusion_matrix_2 += self._class_hist( lt.flatten(), lp.flatten() )
     
     @staticmethod
     def to_str(results):
@@ -54,12 +56,24 @@ class StreamSegMetrics(_StreamMetrics):
         ).reshape(self.n_classes, self.n_classes)
         return hist
 
+    def _class_hist(self, label_true, label_pred):
+        mask = (label_true == 15 )
+        hist = np.bincount(
+            self.n_classes * label_true[mask].astype(int) + label_pred[mask],
+            minlength=self.n_classes ** 2,
+        ).reshape(self.n_classes, self.n_classes)
+        return hist
+   
+
+    
+
     def get_results(self):
         """Returns accuracy score evaluation result.
             - overall accuracy
             - mean accuracy
             - mean IU
             - fwavacc
+            - human mt
         """
         hist = self.confusion_matrix
         acc = np.diag(hist).sum() / hist.sum()
@@ -70,13 +84,19 @@ class StreamSegMetrics(_StreamMetrics):
         freq = hist.sum(axis=1) / hist.sum()
         fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
         cls_iu = dict(zip(range(self.n_classes), iu))
-
+        hist_h = self.confusion_matrix_2
+        # iu_h = np.diag(hist_h) / (hist_h.sum(axis=1) + hist_h.sum(axis=0) - np.diag(hist_h))
+        
+        iu_h = np.diag(hist_h) / (hist_h.sum(axis=1))
+        
+        mean_iu_h = np.nanmean(iu_h)
         return {
                 "Overall Acc": acc,
                 "Mean Acc": acc_cls,
                 "FreqW Acc": fwavacc,
                 "Mean IoU": mean_iu,
                 "Class IoU": cls_iu,
+                "human MT": mean_iu_h,
             }
         
     def reset(self):
