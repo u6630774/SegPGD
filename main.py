@@ -188,9 +188,9 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
             # torch.Size([4, 513, 513])    
             # according to the       
             #   st
-            # mask = new_labels == 15
-            # mask = mask.int()
-            # np_mask = torch.unsqueeze(mask,1)
+            mask = new_labels == 15
+            mask = mask.int()
+            np_mask = torch.unsqueeze(mask,1)
             #   ed
             # TODO how to get mask with the output?
             # print(outputs.shape)
@@ -212,18 +212,18 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
             # loss = criterion(outputs*(~np_mask), new_labels*(~mask)) + criterion(outputs*np_mask, new_labels*mask) 
             # loss_1 = criterion(outputs*(~ np_mask), new_labels*(~mask))
             #   st
-            # loss_1 = criterion(outputs*(1 - np_mask), new_labels*(1 - mask))
-            # loss_2 = criterion(outputs * np_mask, new_labels*0)
-            # t_loss = loss_1 + loss_2
+            loss_1 = criterion(outputs*(1 - np_mask), new_labels*(1 - mask))
+            loss_2 = criterion(outputs * np_mask, new_labels*0)
+            t_loss = loss_1 + loss_2
             #   ed
             # print(t_loss)
-            loss = criterion(outputs, new_labels)
+            # loss = criterion(outputs, new_labels)
                # Zero all existing gradients
             model.zero_grad()
    
                # Calculate gradients of model in backward pass
-            # t_loss.backward()
-            loss.backward()     
+            t_loss.backward()
+            # loss.backward()     
                # Collect datagrad
  ##            print(images.grad)
  #            sign_data_grad = torch.autograd.grad(loss, new_images,
@@ -237,9 +237,9 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
             # TODO set up SegPGD
             # TODO turn to label not 15
             # TODO turn to label 0
-            adversarial_x = attacks.fgsm(images, new_images, 0.0)
+            # adversarial_x = attacks.fgsm(images, new_images, 0.005)
             #
-            # adversarial_x = attacks.t_fgsm_2(images, new_images, 4/255)
+            adversarial_x = attacks.t_fgsm_2(images, new_images, 4/255)
             #
             # print(adversarial_x[1,1,:,:][2][100])
             # plt.imshow(adversarial_x[1,1,:,:].cpu())
@@ -269,7 +269,6 @@ def validate(opts, model, loader, device, metrics, ret_samples_ids=None):
    
                # Re-classify the perturbed image
             new_output = model(adversarial_x)
-             
              
             preds = new_output.detach().max(dim=1)[1].cpu().numpy()
 # =============================================================================

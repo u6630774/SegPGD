@@ -21,10 +21,26 @@ Mean Acc: 0.839632
 FreqW Acc: 0.862684
 Mean IoU: 0.707404
 
+Overall Acc: 0.922114
+Mean Acc: 0.839213
+FreqW Acc: 0.864124
+Mean IoU: 0.712095
+human MT: 0.896228
+
+
 
 Attack:
 
 FGSM:
+
+eps = 0.001
+
+Overall Acc: 0.847649
+Mean Acc: 0.728139
+FreqW Acc: 0.760806
+Mean IoU: 0.533684
+human IoU: 0.040236
+
 
 eps = 0.005
 
@@ -40,6 +56,12 @@ Mean Acc: 0.584187
 FreqW Acc: 0.587170
 Mean IoU: 0.339195
 human IoU: 0.033816
+
+Overall Acc: 0.696552
+Mean Acc: 0.584187
+FreqW Acc: 0.587170
+Mean IoU: 0.339195
+human MT: 0.710134
 
 
 eps = 0.010
@@ -139,6 +161,12 @@ Mean Acc: 0.720904
 FreqW Acc: 0.773259
 Mean IoU: 0.575303
 human IoU: 0.016426
+
+Overall Acc: 0.866186
+Mean Acc: 0.720904
+FreqW Acc: 0.773259
+Mean IoU: 0.575303
+human MT: 0.344936
 
 
 good attack on human
