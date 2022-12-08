@@ -54,24 +54,34 @@ def pgd(image,new_images,new_labels,eps,model):
     
     return adversarial_x
 
-#def segpgd(image,new_images,new_labels,eps,model):
-#    
-#    criterion = nn.CrossEntropyLoss(ignore_index=255, reduction='mean')
-#    for i in range(10):
-#            new_images_d = new_images.detach()
-#            new_images_d.requires_grad_()
-#            with torch.enable_grad():
-#                logits = model(new_images_d)
-#                
-#                # logits vs new labels
-#                # lambda = (i-1)/20
-#                # 
-#                #loss = lambda* criterion(Pt, new_labels) + (1-lambda) * criterion(Pf, new_labels)
-#            grad = torch.autograd.grad(loss, [new_images_d])[0]
-#            image = image.detach() + eps * torch.sign(grad.detach())
-#            adversarial_x = torch.min(torch.max(new_images_d, new_images - eps*1), new_images + eps*1)
-#    
-#    return adversarial_x
+def segpgd(image,new_images,new_labels,eps,model):
+   
+   criterion = nn.CrossEntropyLoss(ignore_index=255, reduction='mean')
+   Total_iterations = 10
+   for i in range(Total_iterations):
+           new_images_d = new_images.detach()
+           new_images_d.requires_grad_()
+           with torch.enable_grad():
+               logits = model(new_images_d)
+
+               #logits vs new labels
+               lamb = (i-1)/(Total_iterations*2)
+               
+               mask_t = logits == new_images
+               mask_t = mask_t.int()
+               np_mask_t = torch.unsqueeze(mask_t,1)
+
+               mask_f = logits != new_images
+               mask_f = mask_f.int()
+               np_mask_f = torch.unsqueeze(mask_f,1)
+               
+               loss = lamb* criterion(np_mask_t*logits, new_labels) + (1-lamb) * criterion(np_mask_f*logits, new_labels)
+           
+           grad = torch.autograd.grad(loss, [new_images_d])[0]
+           image = image.detach() + eps * torch.sign(grad.detach())
+           adversarial_x = torch.min(torch.max(new_images_d, new_images - eps*1), new_images + eps*1)
+   
+   return adversarial_x
 # 
 
 def t_fgsm(images,new_images,eps,np_mask):
