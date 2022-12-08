@@ -42,7 +42,9 @@ def fgsm(images,new_images,eps):
 def pgd(image,new_images,new_labels,eps,model):
     
     criterion = nn.CrossEntropyLoss(ignore_index=255, reduction='mean')
-    for i in range(10):
+    Total_iterations = 10
+    eps = eps / Total_iterations
+    for i in range(Total_iterations):
             new_images_d = new_images.detach()
             new_images_d.requires_grad_()
             with torch.enable_grad():
@@ -58,6 +60,7 @@ def segpgd(image,new_images,new_labels,eps,model):
    
    criterion = nn.CrossEntropyLoss(ignore_index=255, reduction='mean')
    Total_iterations = 10
+   eps = eps / Total_iterations
    for i in range(Total_iterations):
            new_images_d = new_images.detach()
            new_images_d.requires_grad_()
@@ -66,16 +69,27 @@ def segpgd(image,new_images,new_labels,eps,model):
 
                #logits vs new labels
                lamb = (i-1)/(Total_iterations*2)
+
+               pred = torch.max(logits,1).values
+               pred = torch.unsqueeze(pred,1)
                
-               mask_t = logits == new_images
-               mask_t = mask_t.int()
+            #    print(pred.shape)
+            #    print(torch.unsqueeze(new_labels,1).shape)
+
+               mask_t = pred == torch.unsqueeze(new_labels,1)
+               mask_t = torch.squeeze(mask_t,1).int()
                np_mask_t = torch.unsqueeze(mask_t,1)
 
-               mask_f = logits != new_images
-               mask_f = mask_f.int()
+               mask_f = pred != torch.unsqueeze(new_labels,1)
+               mask_f = torch.squeeze(mask_f,1).int()
                np_mask_f = torch.unsqueeze(mask_f,1)
-               
-               loss = lamb* criterion(np_mask_t*logits, new_labels) + (1-lamb) * criterion(np_mask_f*logits, new_labels)
+
+               # need to be check the loss
+            #    print((np_mask_t*logits).shape)
+            #    print((new_labels).shape)
+               loss_t = lamb* criterion(np_mask_t*logits, new_labels)
+               loss_f = (1-lamb) * criterion(np_mask_f*logits, new_labels)
+               loss = loss_t + loss_f
            
            grad = torch.autograd.grad(loss, [new_images_d])[0]
            image = image.detach() + eps * torch.sign(grad.detach())
